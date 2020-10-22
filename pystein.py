@@ -13,10 +13,13 @@ horizon = 120
 # SCALE OF THE MINIMAP!
 scale  = 2
 
+draw_FOV = False
+
 tiles = {
     "#": 1, # Wall
     " ": 15, # Floor
 }
+
 
 with open("map.txt", "r") as f:
     level = []
@@ -301,6 +304,8 @@ def texture_coordinates(ix, iy, vh, vy, th, tw):
 class App:
     def __init__(self):
         pyxel.init(WIDTH, HEIGHT, caption="Raytracing Demo")
+        pyxel.image(0).load(0, 0, "wall.png")
+
         pyxel.run(self.update, self.draw)
 
     def update(self):
@@ -360,11 +365,12 @@ class App:
         pyxel.line(X*scale, Y*scale, ix*scale, iy*scale, 8)
 
         # Draw edges of FOV
-        wx, wy, ix, iy = trace(X, Y, *ray(X, Y, left_extreme(phi)))
-        pyxel.line(X*scale, Y*scale, ix*scale, iy*scale, 5)
+        if draw_FOV:
+            wx, wy, ix, iy = trace(X, Y, *ray(X, Y, left_extreme(phi)))
+            pyxel.line(X*scale, Y*scale, ix*scale, iy*scale, 5)
 
-        wx, wy, ix, iy = trace(X, Y, *ray(X, Y, left_extreme(phi) + FOV_rad))
-        pyxel.line(X*scale, Y*scale, ix*scale, iy*scale, 11)
+            wx, wy, ix, iy = trace(X, Y, *ray(X, Y, left_extreme(phi) + FOV_rad))
+            pyxel.line(X*scale, Y*scale, ix*scale, iy*scale, 11)
 
 
         # Draw player
@@ -396,7 +402,8 @@ class App:
             for vy in range(top, bot):
                 # draw pixel at (vx, vy)
                 tx, ty = texture_coordinates(ix, iy, h, vy -  top, 16, 16)
-                color = bricks[ty][tx]
+                # color = bricks[ty][tx]
+                color = pyxel.image(0).get(tx, ty)
 
                 pyxel.pset(vx, vy, color)
 
