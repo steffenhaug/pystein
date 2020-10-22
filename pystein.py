@@ -55,15 +55,54 @@ def left_extreme(phi):
 epsilon = FOV_rad / WIDTH
 
 
-# Walking speed
-delta = 1/8
-
 def walk(dx, dy):
-    global X
     global Y
 
-    X += delta * dx
-    Y += delta * dy
+    if dx < 0:
+        walk_w(-dx)
+    
+    if dx > 0:
+        walk_e(dx)
+
+    if dy < 0:
+        walk_n(-dy)
+
+    if dy > 0:
+        walk_s(dy)
+
+def walk_w(dx):
+    # West is towards negative x
+    global X
+    # Check if this motion puts either western corer of our hitbox into the wall.
+    # If so, move just next to the wall.
+    if wall(floor(X-R-dx), floor(Y-R)) or (wall(floor(X-R-dx), floor(Y+R))):
+        X = floor(X) + R
+    else:
+        X -= dx
+
+def walk_e(dx):
+    # Towards positive x
+    global X
+    if wall(floor(X+R+dx), floor(Y-R)) or (wall(floor(X+R+dx), floor(Y+R))):
+        X = ceil(X) - R - 0.001 # We need to make sure The new X+R is rounded down or we get stuck.
+    else:
+        X += dx
+
+def walk_n(dy):
+    # Towards negative y
+    global Y
+    if wall(floor(X-R), floor(Y-R-dy)) or (wall(floor(X+R), floor(Y-R-dy))):
+        Y = floor(Y) + R
+    else:
+        Y -= dy
+
+def walk_s(dy):
+    # Towards positive y
+    global Y
+    if wall(floor(X-R), floor(Y+R+dy)) or (wall(floor(X+R), floor(Y+R+dy))):
+        Y = ceil(Y) - R - 0.001
+    else:
+        Y += dy
 
 
 def ray(x, y, theta):
@@ -283,22 +322,26 @@ class App:
         # EITHER ONE of two corners facing the wall INTO the wall. If
         # that is the case, clamp the delta so that we instead end up
         # right next to the wall.
+
+        # Walking speed
+        delta = 1/8
+
         if pyxel.btn(pyxel.KEY_W):
             dx = cos(phi)
             dy = sin(phi)
-            walk(dx, dy)
+            walk(delta*dx, delta*dy)
         if pyxel.btn(pyxel.KEY_A):
             dx = sin(phi)
             dy = -cos(phi)
-            walk(dx, dy)
+            walk(delta*dx, delta*dy)
         if pyxel.btn(pyxel.KEY_S):
             dx = -cos(phi)
             dy = -sin(phi)
-            walk(dx, dy)
+            walk(delta*dx, delta*dy)
         if pyxel.btn(pyxel.KEY_D):
             dx = -sin(phi)
             dy = cos(phi)
-            walk(dx, dy)
+            walk(delta*dx, delta*dy)
 
 
     def draw_minimap(self):
@@ -347,7 +390,7 @@ class App:
 
             d = sqrt(dsq(X, Y, ix, iy))
             p = d * cos(alpha - phi)
-            h = HEIGHT/p
+            h = 2*HEIGHT/p
 
             top = horizon-floor(h/2)
             bot = horizon+floor(h/2)
