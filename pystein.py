@@ -258,7 +258,6 @@ def trace(x, y, x1, y1, x2, y2, dx1, dy1, dx2, dy2):
     # Returns wx, wy, ix, iy, tx
     #   x, y coordinate of the wall
     #   x, y coordinate of the intersection
-    #   x coordinate [0, 1] of the face hit.
 
     while True:
         while dsq(x, y, x1, y1) <= dsq(x, y, x2, y2):
@@ -288,7 +287,7 @@ def texture_coordinates(ix, iy, vh, vy, th, tw):
     y = iy - floor(iy)
 
     # Figure out which side of the wall we hit!
-    if (y < x < (1 - x)) or (y > x > (1 - x)):
+    if (y < x < (1 - y)) or (y > x > (1 - y)):
         tx = floor(x * tw)
     else:
         tx = floor(y * tw)
@@ -309,7 +308,7 @@ class App:
         
         # How much we increment epsilon every loop iteration
         # a key is pressed to turn around
-        dphi = 5*epsilon
+        dphi = 7*epsilon
 
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
